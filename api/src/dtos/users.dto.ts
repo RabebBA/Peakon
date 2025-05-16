@@ -4,15 +4,16 @@ export const UserSchema = z.object({
   firstname: z.string().min(1, 'Le prénom est requis'),
   lastname: z.string().min(1, 'Le nom est requis'),
   matricule: z.string().min(1, 'Le matricule est requis'),
-  job: z.string().max(500, 'La description du poste ne doit pas dépasser 500 caractères'),
+  job: z.string().max(500, 'La description du poste ne doit pas dépasser 500 caractères').optional(),
   email: z.string().email('Email invalide'),
-  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
-  role: z.array(z.string()).default(['USER']),
-  privilege: z.array(z.string()).default([]),
+  roleId: z.array(z.string().regex(/^[a-f\d]{24}$/i, 'ID de rôle invalide')),
   photo: z.string().optional(),
-  phone: z.string().regex(/^\d{10,15}$/, 'Numéro de téléphone invalide'), // Accepte entre 10 et 15 chiffres
+  phone: z
+    .string()
+    .regex(/^\d{8,15}$/, 'Numéro de téléphone invalide')
+    .optional(),
   isConnected: z.boolean().default(false),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean().default(false),
   resetPasswordToken: z.string().optional(),
   resetPasswordExpires: z.number().optional(),
 });

@@ -6,8 +6,8 @@ import { UserModel } from '@models/users.model';
 
 import nodemailer from 'nodemailer';
 import { EMAIL_USER, Email_PWD } from '@/config';
-import { RoleModel } from '@/models/role.model';
-import { PrivilegeModel } from '@/models/privilege.model';
+import crypto from 'crypto';
+import { Types } from 'mongoose';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -33,34 +33,46 @@ export class UserService {
     return findUser;
   }
 
-  // Créer un utilisateur et envoyer un email
-  /*public async createUser(userData: IUser): Promise<IUser> {
+  public async createUser(userData: IUser): Promise<IUser> {
+    debugger;
     const findUser: IUser = await UserModel.findOne({ email: userData.email });
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
 
     const email = userData.email.toLowerCase();
-    const hashedPassword = await hash(userData.password, 10);
-    const createUserData: IUser = await UserModel.create({ ...userData, password: hashedPassword, email: email });
 
-    // Préparer l'email pour l'utilisateur
+    // 1. Générer un mot de passe aléatoire de 12 caractères
+    const plainPassword = crypto.randomBytes(9).toString('base64').slice(0, 12);
+
+    // 2. Hasher le mot de passe
+    const hashedPassword = await hash(plainPassword, 10);
+
+    // 3. Créer l'utilisateur avec le mot de passe hashé
+    const createUserData: IUser = await UserModel.create({
+      ...userData,
+      password: hashedPassword,
+      email,
+      roleId: userData.roleId,
+    });
+
+    // 4. Préparer l'email
     const mailOptions = {
       from: EMAIL_USER,
       to: createUserData.email,
       subject: "Vos données d'authentification",
-      text: `Bonjour ${createUserData.firstname},\n\nVotre compte a été créé avec succès sur la plateforme.\nVoici vos informations de connexion :\n\nMot de passe : ${userData.password}\n\nN'oubliez pas de changer votre mot de passe après votre première connexion.\n\nCordialement,\nL'équipe de la plateforme`,
+      text: `Bonjour ${createUserData.firstname},\n\nVotre compte a été créé avec succès sur la plateforme.\nVoici vos informations de connexion :\n\nMot de passe : ${plainPassword}\n\nN'oubliez pas de changer votre mot de passe après votre première connexion.\n\nCordialement,\nL'équipe de la plateforme`,
     };
 
-    // Envoyer l'email
+    // 5. Envoyer l'email
     try {
       await transporter.sendMail(mailOptions);
     } catch (error) {
-      throw new HttpException(500, 'Error sending email to the user');
+      throw new HttpException(500, 'Erreur lors de l’envoi de l’email à l’utilisateur');
     }
 
     return createUserData;
-  }*/
+  }
 
-  public async createUser(userData: IUser): Promise<IUser> {
+  /*public async createUser(userData: IUser): Promise<IUser> {
     const existingUser = await UserModel.findOne({ email: userData.email });
     if (existingUser) throw new HttpException(409, `This email ${userData.email} already exists`);
 
@@ -73,24 +85,16 @@ export class UserService {
       throw new HttpException(400, 'Only global roles are allowed at user creation');
     }
 
-    // Vérification des privilèges globaux uniquement
-    const privileges = await PrivilegeModel.find({ _id: { $in: userData.privId }, type: 'Global' });
-    if (privileges.length !== userData.privId.length) {
-      throw new HttpException(400, 'Only global privileges are allowed at user creation');
-    }
-
     const user = await UserModel.create({
       ...userData,
       password: hashedPassword,
       email,
-      privId: privileges.map(p => p._id),
     });
 
     // Créer un rôle global spécifique au user
     const role = await RoleModel.create({
       title: `${user.firstname.toUpperCase()}_${user.lastname.toUpperCase()}_ROLE`,
       type: 'Global',
-      privId: privileges.map(p => p._id),
       userId: [user._id],
     });
 
@@ -109,7 +113,7 @@ export class UserService {
     }
 
     return user;
-  }
+  }*/
 
   //Update User
   public async updateUser(userId: string, userData: IUser): Promise<IUser> {
@@ -154,14 +158,6 @@ export class UserService {
     }
 
     return updatedUser;
-  }
-
-  //Delete User
-  public async deleteUser(userId: string): Promise<IUser> {
-    const deleteUserById: IUser = await UserModel.findByIdAndDelete(userId);
-    if (!deleteUserById) throw new HttpException(409, "User doesn't exist");
-
-    return deleteUserById;
   }
 
   //Consulter son propre profil

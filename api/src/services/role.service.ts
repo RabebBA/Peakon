@@ -3,6 +3,7 @@ import { HttpException } from '@/exceptions/httpException';
 import { IRole } from '@/interfaces/role.interface';
 import { RoleModel } from '@/models/role.model';
 import { PrivilegeModel } from '@/models/privilege.model';
+import { isValidObjectId } from 'mongoose';
 
 @Service()
 export class RoleService {
@@ -10,12 +11,7 @@ export class RoleService {
   public findProjectRoles = (): Promise<IRole[]> => {
     return RoleModel.find({
       type: 'Project',
-      $or: [
-        { projectId: { $exists: true, $size: 0 } },
-        { projectId: { $exists: false } },
-        { userId: { $exists: true, $size: 0 } },
-        { userId: { $exists: false } },
-      ],
+      $or: [{ projectId: { $exists: true, $size: 0 } }, { projectId: { $exists: false } }],
     }).exec();
   };
 
@@ -23,14 +19,14 @@ export class RoleService {
   public findGlobalRole = (): Promise<IRole[]> => {
     return RoleModel.find({
       type: 'Global',
-      $or: [
-        { projectId: { $exists: true, $size: 0 } },
-        { projectId: { $exists: false } },
-        { userId: { $exists: true, $size: 0 } },
-        { userId: { $exists: false } },
-      ],
+      $or: [{ projectId: { $exists: true, $size: 0 } }, { projectId: { $exists: false } }],
     }).exec();
   };
+
+  // ✅ Nouveau : Trouver tous les rôles
+  public async findAllRoles(): Promise<IRole[]> {
+    return await RoleModel.find().exec();
+  }
 
   // 3. findProjectRolesByProjectId: Récupérer les rôles de type "Project" pour un projet spécifique
   public findProjectRolesByProjectId = (projectId: string): Promise<IRole[]> => {
@@ -38,29 +34,37 @@ export class RoleService {
   };
 
   // 4. findProjectRoleByUserId: Récupérer les rôles de type "Project" spécifiques à un utilisateur
-  public findProjectRoleByUserId = (userId: string): Promise<IRole[]> => {
+  /* public findProjectRoleByUserId = (userId: string): Promise<IRole[]> => {
     return RoleModel.find({ type: 'Project', userId }).exec();
-  };
+  };*/
 
   // 5. findGlobalRoleByUserId: Récupérer les rôles de type "Global" spécifiques à un utilisateur
-  public findGlobalRoleByUserId = (userId: string): Promise<IRole[]> => {
+  /* public findGlobalRoleByUserId = (userId: string): Promise<IRole[]> => {
     return RoleModel.find({ type: 'Global', userId }).exec();
-  };
+  };*/
 
   // 6. UpdateRole: Met à jour un rôle, crée un nouveau rôle si le projectId[] ou userId[] sont affectés
   public updateRole = async (roleId: string, updateData: Partial<IRole>): Promise<IRole> => {
-    // Vérifier si projectId[] ou userId[] sont affectés
-    const isAffected = updateData.projectId || updateData.userId;
+    const existingRole = await RoleModel.findById(roleId).lean();
+    if (!existingRole) throw new Error('Role not found');
+
+    // Vérifier s'il y a un changement réel dans userId ou projectId
+    const projectIdChanged = updateData.projectId && JSON.stringify(updateData.projectId) !== JSON.stringify(existingRole.projectId);
+
+    const isAffected = projectIdChanged;
 
     if (isAffected) {
       // Créer un nouveau rôle avec les modifications
       const newRole = new RoleModel({
-        ...updateData,
-        _id: undefined, // Mongoose générera un nouvel ID
+        ...existingRole, // conserver les anciens champs
+        ...updateData, // écraser avec les nouvelles valeurs
+        _id: undefined, // nouveau document
       });
+      const existingTitle = await RoleModel.findOne({ title: newRole.title });
+      if (existingTitle) throw new HttpException(409, `This title ${newRole.title} already exists`);
       return newRole.save();
     } else {
-      // Sinon, mettre à jour le rôle existant
+      // Mise à jour normale du document existant
       return RoleModel.findByIdAndUpdate(roleId, updateData, { new: true }).exec();
     }
   };
@@ -72,15 +76,15 @@ export class RoleService {
   }
 
   public async createRole(data: IRole): Promise<IRole> {
-    data.title = data.title.toUpperCase();
+    data.title = data.title.charAt(0).toUpperCase() + data.title.slice(1);
+    const existingTitle = await RoleModel.findOne({ title: data.title });
+    if (existingTitle) throw new HttpException(409, `This title ${data.title} already exists`);
 
     // Construire la requête de recherche pour éviter les doublons
     const query: any = { title: data.title, type: data.type };
 
     if (data.projectId && data.projectId.length > 0) {
       query.projectId = { $in: data.projectId };
-    } else if (data.userId && data.userId.length > 0) {
-      query.userId = { $in: data.userId };
     } else {
       // Vérifier qu'il n'existe pas déjà un rôle "Project" sans projectId (pour tous les projets)
       query.projectId = { $exists: false };
@@ -107,10 +111,31 @@ export class RoleService {
     return await RoleModel.create(data);
   }
 
-  public async deleteRole(roleId: string): Promise<IRole> {
-    const deleteRoleById: IRole | null = await RoleModel.findByIdAndDelete(roleId);
-    if (!deleteRoleById) throw new HttpException(404, "Role doesn't exist");
+  async enableRole(roleId: string) {
+    if (!isValidObjectId(roleId)) {
+      throw new HttpException(400, 'ID de rôle invalide.');
+    }
 
-    return deleteRoleById;
+    const role = await RoleModel.findByIdAndUpdate(roleId, { isEnable: true }, { new: true });
+
+    if (!role) {
+      throw new HttpException(404, 'Rôle non trouvé.');
+    }
+
+    return role;
+  }
+
+  async disableRole(roleId: string) {
+    if (!isValidObjectId(roleId)) {
+      throw new HttpException(400, 'ID de rôle invalide.');
+    }
+
+    const role = await RoleModel.findByIdAndUpdate(roleId, { isEnable: false }, { new: true });
+
+    if (!role) {
+      throw new HttpException(404, 'Rôle non trouvé.');
+    }
+
+    return role;
   }
 }

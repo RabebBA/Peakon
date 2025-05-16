@@ -22,14 +22,7 @@ const UserSchema = new Schema<IUser>({
       required: true,
     },
   ],
-  privId: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Privilege',
-    },
-  ],
   job: {
-    //description of the job in a socity, ex: Human Resources or FullStack Web Developer
     type: String,
     required: true,
     maxlength: 500,
@@ -46,13 +39,14 @@ const UserSchema = new Schema<IUser>({
   },
   phone: {
     type: Number,
+    required: false,
   },
   photo: {
     type: String,
     required: false,
   },
   isConnected: { type: Boolean, default: false },
-  isActive: { type: Boolean, default: true },
+  isActive: { type: Boolean, default: false },
   resetPasswordToken: {
     type: String,
     required: false,

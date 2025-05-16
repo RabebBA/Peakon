@@ -3,5 +3,6 @@ export type StatusType = 'En attente' | 'En dev' | 'A tester' | 'En attente de b
 export interface IStatus {
   _id?: string;
   status: StatusType;
+  special: string;
   isScalable: boolean; //évolutive ou figé
 }

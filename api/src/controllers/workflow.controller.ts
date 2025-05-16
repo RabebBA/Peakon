@@ -34,7 +34,7 @@ export class WorkflowController {
     }
   };
 
-  public createWorkFlow = async (req: Request, res: Response, next: NextFunction) => {
+  /*public createWorkFlow = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const workflowService = Container.get(WorkFlowService);
 
@@ -162,5 +162,5 @@ export class WorkflowController {
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
-  };
+  };*/
 }

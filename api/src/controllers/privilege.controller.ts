@@ -25,6 +25,15 @@ export class PrivilegeController {
     }
   };
 
+  public getAllPrivilege = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const privileges: IPrivilege[] = await this.priv.findAllPrivileges();
+      res.status(200).json({ data: privileges, message: 'All privileges retrieved successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getPrivilegeById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
@@ -42,6 +51,16 @@ export class PrivilegeController {
       const privilegeData: IPrivilege = req.body;
       const newPrivilege: IPrivilege = await this.priv.createPrivilege(privilegeData);
       res.status(201).json({ data: newPrivilege, message: 'Privilege created successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public createPrivileges = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const privilegesData: IPrivilege[] = req.body;
+      const newPrivileges: IPrivilege[] = await this.priv.createPrivileges(privilegesData);
+      res.status(201).json({ data: newPrivileges, message: 'Privileges created successfully' });
     } catch (error) {
       next(error);
     }

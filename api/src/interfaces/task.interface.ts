@@ -23,6 +23,7 @@ export interface TaskHistoryEntry {
 export interface ITask extends Document {
   _id: string;
   title: string;
+  desc: string;
   demandType: DemandType;
   criteria: string[];
   pieceJt?: string[];

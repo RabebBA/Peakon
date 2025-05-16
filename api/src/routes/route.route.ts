@@ -21,6 +21,6 @@ export class RouteRoute implements Routes {
     this.router.get(`${this.path}`, AuthMiddleware, /* verifyAdmin,*/ this.routeController.getAllRoutes);
 
     // Récupérer une route spécifique par ID (admin uniquement)
-    this.router.get(`${this.path}/:id`, /*AuthMiddleware, verifyAdmin,*/ this.routeController.getRouteById);
+    this.router.get(`${this.path}/:id`, AuthMiddleware, /*verifyAdmin,*/ this.routeController.getRouteById);
   }
 }

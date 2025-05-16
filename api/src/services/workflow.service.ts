@@ -7,7 +7,7 @@ import { ITask } from '@/interfaces/task.interface';
 import { AuditService } from './audit.service';
 import { WsGateway } from './wsGateway';
 import { TaskModel } from '@/models/task.model';
-import { Transition } from '@/interfaces/transition.interface';
+import { ITransition } from '@/interfaces/transition.interface';
 import { UserModel } from '@/models/users.model'; // Assurez-vous d'importer le modèle utilisateur
 import { ConditionalSchemaFactory } from '@middlewares/conditionalSchema';
 import { TemplateModel } from '@/models/template.model';
@@ -37,7 +37,7 @@ export class WorkFlowService {
   }
 
   // Créer un nouveau workflow
-  public async createWorkFlow(data: IWorkFlow): Promise<IWorkFlow> {
+  /* public async createWorkFlow(data: IWorkFlow): Promise<IWorkFlow> {
     // Vérifier le statut source
     const sourceStatus = await StatusModel.findById(data.status);
     if (!sourceStatus) {
@@ -52,15 +52,63 @@ export class WorkFlowService {
       }
 
       if (transition.allowedRoles && transition.allowedRoles.length > 0) {
-        const roles = await RoleModel.find({ _id: { $in: transition.allowedRoles } });
+        const roles = await RoleModel.find({ _id: { $in: transition.allowedRoles }, type: 'Project' });
         if (roles.length !== transition.allowedRoles.length) {
           throw new Error(`Certains rôles de transition sont introuvables.`);
+        }
+      }
+
+      if (transition.notifRoles && transition.notifRoles.length > 0) {
+        const roles = await RoleModel.find({ _id: { $in: transition.allowedRoles }, type: 'Project' });
+        if (roles.length !== transition.allowedRoles.length) {
+          throw new Error(`Certains rôles de notification sont introuvables.`);
         }
       }
     }
 
     // Création du workflow
     return await WorkFlowModel.create(data);
+  }
+
+  public async createManyWorkFlows(dataList: IWorkFlow[]): Promise<IWorkFlow[]> {
+    const results: IWorkFlow[] = [];
+
+    await Promise.all(
+      dataList.map(async data => {
+        // Vérifier le statut source
+        const sourceStatus = await StatusModel.findById(data.status);
+        if (!sourceStatus) {
+          throw new Error(`Statut source introuvable : ${data.status}`);
+        }
+
+        // Vérification des transitions
+        for (const transition of data.transitions) {
+          const targetStatus = await StatusModel.findById(transition.targetStatus);
+          if (!targetStatus) {
+            throw new Error(`Statut de transition introuvable : ${transition.targetStatus}`);
+          }
+
+          if (transition.allowedRoles?.length) {
+            const roles = await RoleModel.find({ _id: { $in: transition.allowedRoles }, type: 'Project' });
+            if (roles.length !== transition.allowedRoles.length) {
+              throw new Error(`Certains rôles de transition sont introuvables.`);
+            }
+          }
+
+          if (transition.notifRoles?.length) {
+            const notifRoles = await RoleModel.find({ _id: { $in: transition.notifRoles }, type: 'Project' });
+            if (notifRoles.length !== transition.notifRoles.length) {
+              throw new Error(`Certains rôles de notification sont introuvables.`);
+            }
+          }
+        }
+
+        const created = await WorkFlowModel.create(data);
+        results.push(created);
+      }),
+    );
+
+    return results;
   }
 
   // Mettre à jour un workflow
@@ -80,7 +128,7 @@ export class WorkFlowService {
   }
 
   // Gérer les effets secondaires après une transition
-  /*async handleSideEffects(task: ITask, transition: Transition): Promise<void> {
+  /*async handleSideEffects(task: ITask, transition: ITansition): Promise<void> {
     // Exemple d'effet secondaire : mise à jour d'un champ dans la tâche
     if (transition.targetStatus === 'En attente de build') {
       task.gitLink = 'https://git.example.com';
@@ -88,9 +136,9 @@ export class WorkFlowService {
     }
   }*/
 
-  public async transitionTask(
+  /*public async transitionTask(
     taskId: string,
-    transition: Transition,
+    transition: ITansition,
     currentUserId: string,
     targetStatusId: string,
     userRoleIds: string[],
@@ -133,7 +181,7 @@ export class WorkFlowService {
 
       // Trouver la transition pour le nouveau statut
       const transition = workflowsStep.transitions.find(t => t.targetStatus.toString() === newStatus);
-      if (!transition) throw new Error('Transition non autorisée');
+      if (!transition) throw new Error('ITansition non autorisée');
 
       // Créer le schéma de validation à partir des conditions de transition
       const schema = ConditionalSchemaFactory.create(newStatus, transition.conditions);
@@ -153,7 +201,7 @@ export class WorkFlowService {
   }
 
   //Récupérer les roles ayant la possibilité de manipuler une tache
-  public async validateTransition(taskId: string, targetStatusId: string, userRoleIds: string[]): Promise<boolean> {
+  /* public async validateTransition(taskId: string, targetStatusId: string, userRoleIds: string[]): Promise<boolean> {
     const task = await TaskModel.findById(taskId).populate('status project');
     if (!task) throw new Error('Tâche introuvable');
 
@@ -180,7 +228,7 @@ export class WorkFlowService {
 
   async applyTransition(taskId: string, targetStatusId: string, userRoleIds: string[], payload: any = {}): Promise<void> {
     const isValid = await this.validateTransition(taskId, targetStatusId, userRoleIds);
-    if (!isValid) throw new Error('Transition non autorisée');
+    if (!isValid) throw new Error('ITansition non autorisée');
     const task = await TaskModel.findById(taskId);
     const workflow = await WorkFlowModel.findOne({ status: task.status, 'transitions.targetStatus': targetStatusId });
     const transition = workflow?.transitions.find(t => t.targetStatus.toString() === targetStatusId);
@@ -211,5 +259,5 @@ export class WorkFlowService {
   async getNextStatuses(taskId: string, userRoleIds: string[]) {
     const transitions = await this.getAvailableTransitions(taskId, userRoleIds);
     return transitions.map(t => t.targetStatus);
-  }
+  }*/
 }

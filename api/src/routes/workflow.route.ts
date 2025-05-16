@@ -16,10 +16,10 @@ export class WorkflowRoute implements Routes {
   private initializeRoutes() {
     this.router.get(`${this.path}`, AuthMiddleware, this.workflow.getAllWorkFlows);
     this.router.get(`${this.path}/:id`, AuthMiddleware, this.workflow.getWorkFlowById);
-    this.router.post(`${this.path}`, AuthMiddleware, this.workflow.createWorkFlow);
+    /*this.router.post(`${this.path}`, AuthMiddleware, this.workflow.createWorkFlow);
     this.router.put(`${this.path}/:id`, AuthMiddleware, this.workflow.updateWorkFlow);
     this.router.delete(`${this.path}/:id`, AuthMiddleware, this.workflow.deleteWorkFlow);
     this.router.post(`${this.path}/validate/:projectId`, AuthMiddleware, this.workflow.validateProjectWorkflow);
-    this.router.post(`${this.path}/clone`, AuthMiddleware, this.workflow.cloneWorkflow);
+    this.router.post(`${this.path}/clone`, AuthMiddleware, this.workflow.cloneWorkflow);*/
   }
 }

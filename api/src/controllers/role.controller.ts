@@ -26,6 +26,15 @@ export class RoleController {
     }
   };
 
+  public getAllRoles = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const roles: IRole[] = await this.role.findAllRoles();
+      res.status(200).json({ data: roles, message: 'All roles retrieved successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   // GET /roles/project/:projectId - Récupérer les rôles de type "Project" pour un projet spécifique
   public getProjectRolesByProjectId = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -38,7 +47,7 @@ export class RoleController {
   };
 
   // GET /roles/user/:userId - Récupérer les rôles de type "Project" spécifiques à un utilisateur
-  public getProjectRoleByUserId = async (req: Request, res: Response, next: NextFunction) => {
+  /* public getProjectRoleByUserId = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { userId } = req.params;
       const roles: IRole[] = await this.role.findProjectRoleByUserId(userId);
@@ -57,7 +66,7 @@ export class RoleController {
     } catch (error) {
       next(error);
     }
-  };
+  };*/
 
   // GET /roles/:id - Récupérer un rôle par ID
   public getRoleById = async (req: Request, res: Response, next: NextFunction) => {
@@ -93,12 +102,21 @@ export class RoleController {
     }
   };
 
-  // DELETE /roles/:id - Supprimer un rôle
-  public deleteRole = async (req: Request, res: Response, next: NextFunction) => {
+  public enableRole = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const roleId: string = req.params.id;
-      const deletedRole: IRole = await this.role.deleteRole(roleId);
-      res.status(200).json({ data: deletedRole, message: 'Role deleted successfully' });
+      const updatedRole = await this.role.enableRole(roleId);
+      res.status(200).json({ data: updatedRole, message: 'Role enabled successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public disableRole = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const roleId: string = req.params.id;
+      const updatedRole = await this.role.disableRole(roleId);
+      res.status(200).json({ data: updatedRole, message: 'Role disabled successfully' });
     } catch (error) {
       next(error);
     }

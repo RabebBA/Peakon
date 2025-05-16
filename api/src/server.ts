@@ -1,3 +1,12 @@
+process.on('uncaughtException', err => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1); // ou redémarrage via PM2
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 import { App } from '@/app';
 import { ValidateEnv } from '@utils/validateEnv';
 
@@ -6,7 +15,6 @@ import { UserRoute } from '@routes/users.route';
 import { PrivilegeRoute } from '@/routes/privilege.route';
 import { RoleRoute } from './routes/role.route';
 import { RouteRoute } from './routes/route.route';
-import { UserRoleRoute } from './routes/user.role.route';
 import { ProjectRoute } from './routes/project.route';
 import { WorkflowRoute } from './routes/workflow.route';
 import { StatusRoute } from './routes/status.route';
@@ -21,7 +29,6 @@ const app = new App([
   new PrivilegeRoute(),
   new RoleRoute(),
   new RouteRoute(),
-  new UserRoleRoute(),
   new ProjectRoute(),
   new WorkflowRoute(),
   new StatusRoute(),

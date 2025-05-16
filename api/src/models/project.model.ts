@@ -12,7 +12,6 @@ const ProjectSchema: Schema = new Schema(
       {
         userId: { type: Schema.Types.ObjectId, ref: 'User' },
         roles: [{ type: Schema.Types.ObjectId, ref: 'Role' }],
-        privileges: [{ type: Schema.Types.ObjectId, ref: 'Privilege' }],
       },
     ],
     desc: {
@@ -33,6 +32,10 @@ const ProjectSchema: Schema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Template',
       required: true,
+    },
+    isArchived: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },

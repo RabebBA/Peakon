@@ -25,7 +25,17 @@ export class TemplateController {
     }
   };
 
-  public createTemplate = async (req: Request, res: Response, next: NextFunction) => {
+  public createTemplateWithDependencies = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const templateData = req.body;
+      const template = await this.templateService.createTemplateWithDependencies(templateData);
+      res.status(201).json({ data: template, message: 'Template created successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /*public createTemplate = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const templateData: ITemplate = req.body;
       const newTemplate = await this.templateService.createTemplate(templateData);
@@ -33,9 +43,9 @@ export class TemplateController {
     } catch (error) {
       next(error);
     }
-  };
+  };*/
 
-  public updateTemplate = async (req: Request, res: Response, next: NextFunction) => {
+  /*public updateTemplate = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       const templateData: ITemplate = req.body;
@@ -44,7 +54,7 @@ export class TemplateController {
     } catch (error) {
       next(error);
     }
-  };
+  };*/
 
   public deleteTemplate = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -56,7 +66,7 @@ export class TemplateController {
     }
   };
 
-  public cloneTemplate = async (req: Request, res: Response, next: NextFunction) => {
+  /*public cloneTemplate = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const sourceProjectId = req.headers['x-source-project-id'] as string;
       const targetProjectId = req.headers['x-target-project-id'] as string;
@@ -70,7 +80,7 @@ export class TemplateController {
     } catch (error) {
       next(error);
     }
-  };
+  };*/
 
   public getTemplateByProjectId = async (req: Request, res: Response, next: NextFunction) => {
     try {

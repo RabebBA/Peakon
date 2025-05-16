@@ -9,10 +9,10 @@ export interface IProject {
   members: {
     userId: IUser['_id'];
     roles: IRole['_id'][]; // Rôles spécifiques au projet
-    privileges: IPrivilege['_id'][]; // Privilèges spécifiques au projet
   }[];
   desc?: string;
   createdBy: IUser['_id'];
   deliveryDate: Date;
   template: ITemplate['_id'];
+  isArchived: boolean;
 }

@@ -7,6 +7,6 @@ export interface IRole {
   title: string;
   type: 'Global' | 'Project';
   privId: IPrivilege['_id'][];
-  projectId?: IProject['_id'][]; //pour définir un role spécifique à un projet
-  userId?: IUser['_id'][]; //pour définir un role specifique à un user
+  projectId?: IProject['_id'][];
+  isEnable: boolean;
 }

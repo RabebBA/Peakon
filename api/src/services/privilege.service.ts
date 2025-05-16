@@ -37,6 +37,10 @@ export class PrivilegeService {
     return privilege;
   }
 
+  public async findAllPrivileges(): Promise<IPrivilege[]> {
+    return await PrivilegeModel.find().exec();
+  }
+
   public async createPrivilege(data: IPrivilege): Promise<IPrivilege> {
     const existingPrivilege = await PrivilegeModel.findOne({
       routeId: data.routeId,
@@ -44,6 +48,21 @@ export class PrivilegeService {
     if (existingPrivilege) throw new HttpException(409, 'Privilege already exists');
 
     return await PrivilegeModel.create(data);
+  }
+
+  public async createPrivileges(data: IPrivilege[]): Promise<IPrivilege[]> {
+    // Filtrage des doublons potentiels avant création
+    const routeIds = data.map(d => d.routeId);
+    const existing = await PrivilegeModel.find({ routeId: { $in: routeIds } });
+
+    const existingRouteIds = new Set(existing.map(p => p.routeId.toString()));
+    const newPrivileges = data.filter(p => !existingRouteIds.has(p.routeId.toString()));
+
+    if (newPrivileges.length === 0) {
+      throw new HttpException(409, 'All privileges already exist');
+    }
+
+    return await PrivilegeModel.insertMany(newPrivileges);
   }
 
   public async updatePrivilege(privilegeId: string, data: Partial<IPrivilege>): Promise<IPrivilege> {

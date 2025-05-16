@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { ITask } from '@/interfaces/task.interface';
-import { Transition } from '@interfaces/transition.interface'; // Assurez-vous d'avoir défini l'interface Transition
+import { Transition } from '@/interfaces/transition.interface'; // Assurez-vous d'avoir défini l'interface Transition
 import { IUser } from '@/interfaces/users.interface';
 import { AuditLogModel } from '@/models/auditLog.model'; // Modèle de log d'audit
 

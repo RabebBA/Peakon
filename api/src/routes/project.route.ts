@@ -1,17 +1,3 @@
-//import { Router } from 'express';
-//import { authenticateJWT, requireRole } from '../middlewares/auth.middleware';
-//import * as ProjectController from '../controllers/project.controller';
-
-//const router = Router();
-
-// Création de projet (Admin seulement)
-//router.post('/', authenticateJWT, requireRole(['ADMIN']), ProjectController.createProject);
-
-// Récupération workflow
-//router.get('/:id/workflow', authenticateJWT, ProjectController.getProjectWorkflow);
-
-//export default router;
-
 import { Router } from 'express';
 import { ProjectController } from '@controllers/project.controller';
 import { CreateProjectDto, UpdateProjectDto } from '@dtos/project.dto';
@@ -31,9 +17,12 @@ export class ProjectRoute implements Routes {
 
   private initializeRoutes() {
     this.router.get(`${this.path}`, AuthMiddleware, this.project.getProjects);
+    this.router.get(`${this.path}/archived`, AuthMiddleware, this.project.getArchivedProjects);
     this.router.get(`${this.path}/:id`, AuthMiddleware, this.project.getProjectById);
-    this.router.post(`${this.path}`, AuthMiddleware, /*verifyAdmin,*/ ValidationMiddleware(CreateProjectDto), this.project.createProject);
+    this.router.post(`${this.path}`, AuthMiddleware, /*verifyAdmin,ValidationMiddleware(CreateProjectDto),*/ this.project.createProject);
     this.router.put(`${this.path}/:id`, AuthMiddleware, /*verifyAdmin,*/ ValidationMiddleware(UpdateProjectDto), this.project.updateProject);
-    this.router.delete(`${this.path}/:id`, AuthMiddleware, /*verifyAdmin,*/ this.project.deleteProject);
+    //this.router.delete(`${this.path}/:id`, AuthMiddleware, /*verifyAdmin,*/ this.project.deleteProject);
+    this.router.patch(`${this.path}/:id/archive`, AuthMiddleware, this.project.archiveProject);
+    this.router.patch(`${this.path}/:id/unarchive`, AuthMiddleware, this.project.unarchiveProject);
   }
 }

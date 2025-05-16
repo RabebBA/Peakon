@@ -16,12 +16,15 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 export function NavMain({ items }) {
+  const { isSidebarOpen } = useSidebar();
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>Project</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible

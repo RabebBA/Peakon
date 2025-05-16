@@ -12,9 +12,8 @@ import {
   UsersRound,
   PieChart,
   Settings2,
-  SquareTerminal,
-  UserRoundPlus,
-  Key,
+  Workflow,
+  History,
 } from "lucide-react";
 
 import { NavMain } from "./nav-main";
@@ -75,12 +74,6 @@ export function AppSidebar({ ...props }) {
         link: "/home",
       },
       {
-        name: "Add member",
-        logo: UserRoundPlus,
-        plan: "Free",
-        link: "/create-user",
-      },
-      {
         name: "Members",
         logo: UsersRound,
         plan: "Startup",
@@ -93,10 +86,10 @@ export function AppSidebar({ ...props }) {
         link: "/roles",
       },
       {
-        name: "Actions",
-        logo: Key,
+        name: "Workflow",
+        logo: Workflow,
         plan: "Startup",
-        link: "/privileges",
+        link: "/templates",
       },
     ],
     navMain: [
@@ -104,26 +97,21 @@ export function AppSidebar({ ...props }) {
         title: "Dashboards",
         url: "#",
         icon: LayoutDashboard,
-        isActive: true,
         items: [
           {
             title: "Project",
-            url: "#",
+            url: "/projects",
           },
           {
             title: "User",
             url: "#",
           },
-          {
-            title: "Settings",
-            url: "#",
-          },
         ],
       },
       {
-        title: "Models",
+        title: "Log",
         url: "#",
-        icon: Bot,
+        icon: History,
         items: [
           {
             title: "Genesis",
@@ -140,35 +128,12 @@ export function AppSidebar({ ...props }) {
         ],
       },
       {
-        title: "Documentation",
-        url: "#",
-        icon: BookOpen,
-        items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
-        ],
-      },
-      {
         title: "Settings",
         url: "#",
         icon: Settings2,
         items: [
           {
-            title: "General",
+            title: "Language",
             url: "#",
           },
           {
@@ -188,19 +153,30 @@ export function AppSidebar({ ...props }) {
     ],
     projects: [
       {
-        name: "Design Engineering",
-        url: "#",
-        icon: Frame,
+        name: "Roles",
+        icon: VenetianMask,
+        url: "/roles", // optionnel si un lien par défaut est requis
+        items: [
+          {
+            title: "Global Role",
+            url: "/roles/global",
+          },
+          {
+            title: "Project Role",
+            url: "/roles/project",
+          },
+        ],
       },
       {
-        name: "Sales & Marketing",
-        url: "#",
-        icon: PieChart,
+        name: "Members",
+        icon: UsersRound,
+        url: "/users",
       },
+
       {
-        name: "Travel",
-        url: "#",
-        icon: Map,
+        name: "Workflow",
+        url: "/workflows",
+        icon: Workflow,
       },
     ],
   };
@@ -211,8 +187,8 @@ export function AppSidebar({ ...props }) {
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />
+        <NavMain teams={data.teams} items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

@@ -18,9 +18,12 @@ export class PrivilegeRoute implements Routes {
   private initializeRoutes() {
     this.router.get(`${this.path}/project`, AuthMiddleware, /* verifyAdmin,*/ this.priv.getAllProjectPrivilege); // GET all project privileges
     this.router.get(`${this.path}/global`, AuthMiddleware, /* verifyAdmin,*/ this.priv.getAllGlobalPrivilege); // GET all global privileges
+    this.router.get(`${this.path}`, AuthMiddleware, /* verifyAdmin,*/ this.priv.getAllPrivilege); // GET all global privileges
 
     this.router.get(`${this.path}/:id`, AuthMiddleware /*, verifyAdmin*/, this.priv.getPrivilegeById); // GET privilege by ID
-    this.router.post(`${this.path}`, AuthMiddleware /*, verifyAdmin /*, ValidationMiddleware(IPrivilegeDTO)*/, this.priv.createPrivilege); // CREATE privilege
+    this.router.post(`${this.path}` /*, verifyAdmin /*, ValidationMiddleware(IPrivilegeDTO)*/, this.priv.createPrivilege); // CREATE privilege
+    this.router.post(`${this.path}/many` /*, verifyAdmin /*, ValidationMiddleware(IPrivilegeDTO)*/, this.priv.createPrivileges); // CREATE many privileges
+
     this.router.put(`${this.path}/:id`, AuthMiddleware /*, verifyAdmin /*, ValidationMiddleware(IPrivilegeDTO)*/, this.priv.updatePrivilege); // UPDATE privilege
     this.router.delete(`${this.path}/:id`, AuthMiddleware, /*verifyAdmin,*/ this.priv.deletePrivilege); // DELETE privilege
   }

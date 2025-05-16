@@ -13,19 +13,21 @@ export class TemplateRoute implements Routes {
 
   private initializeRoutes() {
     // CRUD
-    this.router.get('/', this.template.findAllTemplates);
-    this.router.get('/:id', this.template.getTemplateById);
-    this.router.post('/', this.template.createTemplate);
-    this.router.put('/:id', this.template.updateTemplate);
-    this.router.delete('/:id', this.template.deleteTemplate);
+    this.router.get(`${this.path}`, this.template.findAllTemplates);
+    this.router.get(`${this.path}/:id`, this.template.getTemplateById);
+    this.router.post(`${this.path}`, this.template.createTemplateWithDependencies);
+
+    /*this.router.post(`${this.path}`, this.template.createTemplate);
+    this.router.put(`${this.path}/:id`, this.template.updateTemplate);*/
+    this.router.delete(`${this.path}/:id`, this.template.deleteTemplate);
 
     // Cloner un template spécifique à un projet
-    this.router.post('/:id/clone', this.template.cloneTemplate);
+    //this.router.post(`${this.path}/:id/clone`, this.template.cloneTemplate);
 
     // Récupérer les templates d’un projet
-    this.router.get('/project/:projectId', this.template.getTemplateByProjectId);
+    this.router.get(`${this.path}/:id/project/:projectId`, this.template.getTemplateByProjectId);
 
     // Récupérer les templates généraux
-    this.router.get('/general/list', this.template.getTemplate);
+    this.router.get(`${this.path}/:id/general/list`, this.template.getTemplate);
   }
 }

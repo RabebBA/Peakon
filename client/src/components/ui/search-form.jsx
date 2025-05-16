@@ -15,7 +15,7 @@ export function SearchForm({ ...props }) {
           placeholder="Type to search..."
           className="h-8 pl-7"
         />
-        <Search className="text-neutral-700 pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
+        <Search className="text-neutral-700 dark:text-neutral-400 pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
       </div>
     </form>
   );

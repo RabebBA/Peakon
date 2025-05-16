@@ -19,6 +19,10 @@ export class StatusService {
 
   // ➕ Créer un nouveau statut
   public async createStatus(data: IStatus): Promise<IStatus> {
+    const existingStatus = await StatusModel.findOne({
+      status: data.status,
+    });
+    if (existingStatus) throw new HttpException(409, 'Status already exists');
     const createdStatus = new StatusModel(data);
     return await createdStatus.save();
   }

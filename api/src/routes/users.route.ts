@@ -21,7 +21,7 @@ export class UserRoute implements Routes {
     this.router.get(`${this.path}/:id`, AuthMiddleware, /*verifyAdmin,*/ this.user.getUserById); // Get user by ID
     this.router.post(`${this.path}`, AuthMiddleware, /*verifyAdmin,*/ ValidationMiddleware(CreateUserSchema), this.user.CreateUser); // Create user
     this.router.put(`${this.path}/:id`, AuthMiddleware, /*verifyAdmin,*/ ValidationMiddleware(UpdateUserSchema), this.user.updateUser); // Update user by ID
-    this.router.delete(`${this.path}/:id`, AuthMiddleware, /*verifyAdmin,*/ this.user.deleteUser); // Delete user by ID
+    //this.router.delete(`${this.path}/:id`, AuthMiddleware, /*verifyAdmin,*/ this.user.deleteUser); // Delete user by ID
 
     // Account Deactivation Routes (admin-only access)
     this.router.put(`${this.path}/:id/deactivate`, AuthMiddleware, /*verifyAdmin,*/ this.user.deactivateAccount); // Deactivate user account

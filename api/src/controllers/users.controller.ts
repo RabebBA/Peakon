@@ -54,7 +54,7 @@ export class UserController {
     }
   };
 
-  public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  /*public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId: string = req.params.id;
       const deleteUserData: IUser = await this.user.deleteUser(userId);
@@ -63,7 +63,7 @@ export class UserController {
     } catch (error) {
       next(error);
     }
-  };
+  };*/
 
   public getUserProfile = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {

@@ -1,6 +1,6 @@
 import { AppSidebar } from "@/components/sidebar-item/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import Navbar from "./nav-app";
+import Navbar from "./items/nav-app";
 import { ThemeProvider } from "@/components/context/theme.context";
 
 export default function Sidebar({ children }) {

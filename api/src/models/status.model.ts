@@ -6,6 +6,10 @@ const StatusSchema: Schema = new Schema({
     type: String,
     required: true,
   },
+  special: {
+    type: String,
+    enum: ['Initial', 'Final'],
+  },
   isScalable: {
     type: Boolean,
     required: true,

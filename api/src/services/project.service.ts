@@ -11,7 +11,11 @@ import { PrivilegeModel } from '@/models/privilege.model';
 @Service()
 export class ProjectService {
   public async findAllProject(): Promise<IProject[]> {
-    return await ProjectModel.find();
+    return await ProjectModel.find({ isArchived: false });
+  }
+
+  public async findArchivedProjects(): Promise<IProject[]> {
+    return await ProjectModel.find({ isArchived: true });
   }
 
   public async findProjectById(projectId: string): Promise<IProject> {
@@ -24,33 +28,16 @@ export class ProjectService {
     const existing = await ProjectModel.findOne({ name: projectData.name });
     if (existing) throw new HttpException(409, `Project name '${projectData.name}' already exists`);
 
-    const template = await TemplateModel.findById(projectData.template).populate('workflows');
+    const template = await TemplateModel.findById(projectData.template);
     if (!template) throw new HttpException(400, 'Invalid template ID');
-
-    const workflows: IWorkFlow[] = await WorkFlowModel.find({ _id: { $in: template.workflows } });
-    const statusSet = new Set(workflows.map(w => w.status.toString()));
-
-    for (const step of workflows) {
-      for (const transition of step.transitions) {
-        if (!statusSet.has(transition.targetStatus.toString())) {
-          throw new HttpException(400, `Invalid target status: ${transition.targetStatus}`);
-        }
-      }
-    }
 
     // ✅ Vérification des types de rôles et privilèges
     for (const member of projectData.members) {
       const roles = await RoleModel.find({ _id: { $in: member.roles } });
-      const privileges = await PrivilegeModel.find({ _id: { $in: member.privileges } });
 
       const invalidRoles = roles.filter(role => role.type !== 'Project');
       if (invalidRoles.length > 0) {
         throw new HttpException(400, `Invalid role type for roles: ${invalidRoles.map(r => r.title).join(', ')}`);
-      }
-
-      const invalidPrivileges = privileges.filter(priv => priv.type !== 'Project');
-      if (invalidPrivileges.length > 0) {
-        throw new HttpException(400, `Invalid privilege type for privileges: ${invalidPrivileges.map(p => p.routeId).join(', ')}`);
       }
     }
 
@@ -77,14 +64,6 @@ export class ProjectService {
     const workflows: IWorkFlow[] = await WorkFlowModel.find({ _id: { $in: template.workflows } });
     const statusSet = new Set(workflows.map(w => w.status.toString()));
 
-    for (const step of workflows) {
-      for (const transition of step.transitions) {
-        if (!statusSet.has(transition.targetStatus.toString())) {
-          throw new HttpException(400, `Invalid target status: ${transition.targetStatus}`);
-        }
-      }
-    }
-
     existingProject.name = projectData.name || existingProject.name;
     existingProject.desc = projectData.desc || existingProject.desc;
     existingProject.deliveryDate = projectData.deliveryDate || existingProject.deliveryDate;
@@ -94,13 +73,33 @@ export class ProjectService {
     return await existingProject.save();
   }
 
-  public async deleteProject(projectId: string): Promise<IProject> {
+  /*public async deleteProject(projectId: string): Promise<IProject> {
     const project = await ProjectModel.findByIdAndDelete(projectId);
     if (!project) throw new HttpException(404, "Project doesn't exist");
     return project;
+  }*/
+
+  public async archiveProject(projectId: string): Promise<IProject> {
+    const project = await ProjectModel.findById(projectId);
+    if (!project) throw new HttpException(404, "Project doesn't exist");
+
+    if (project.isArchived) throw new HttpException(400, 'Project is already archived');
+
+    project.isArchived = true;
+    return await project.save();
   }
 
-  public static async getWorkflow(projectId: string): Promise<
+  public async unarchiveProject(projectId: string): Promise<IProject> {
+    const project = await ProjectModel.findById(projectId);
+    if (!project) throw new HttpException(404, "Project doesn't exist");
+
+    if (!project.isArchived) throw new HttpException(400, 'Project is not archived');
+
+    project.isArchived = false;
+    return await project.save();
+  }
+
+  /*public static async getWorkflow(projectId: string): Promise<
     {
       status: string;
       transitions: { target: string; allowedRoles: string[] }[];
@@ -124,5 +123,5 @@ export class ProjectService {
           }))
         : [],
     }));
-  }
+  }*/
 }

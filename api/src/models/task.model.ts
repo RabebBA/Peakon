@@ -17,6 +17,9 @@ const TaskSchema: Schema = new Schema({
     maxlength: 50,
     match: /^[a-zA-Z0-9\s\-]+$/,
   },
+  desc: {
+    type: String,
+  },
   demandType: {
     type: String,
     enum: Object.values(DemandType),

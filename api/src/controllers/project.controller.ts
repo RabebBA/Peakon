@@ -17,6 +17,15 @@ export class ProjectController {
     }
   };
 
+  public getArchivedProjects = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const projects: IProject[] = await this.project.findArchivedProjects();
+      res.status(200).json({ data: projects, message: 'findArchived' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getProjectById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const projectId: string = req.params.id;
@@ -53,12 +62,34 @@ export class ProjectController {
     }
   };
 
-  public deleteProject = async (req: Request, res: Response, next: NextFunction) => {
+  /*public deleteProject = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const projectId: string = req.params.id;
       const deleteProjectData: IProject = await this.project.deleteProject(projectId);
 
       res.status(200).json({ data: deleteProjectData, message: 'deleted' });
+    } catch (error) {
+      next(error);
+    }
+  };*/
+
+  public archiveProject = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const projectId: string = req.params.id;
+      const archivedProject: IProject = await this.project.archiveProject(projectId);
+
+      res.status(200).json({ data: archivedProject, message: 'project archived' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public unarchiveProject = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const projectId: string = req.params.id;
+      const unarchivedProject: IProject = await this.project.unarchiveProject(projectId);
+
+      res.status(200).json({ data: unarchivedProject, message: 'project unarchived' });
     } catch (error) {
       next(error);
     }

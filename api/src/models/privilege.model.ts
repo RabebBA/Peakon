@@ -9,15 +9,13 @@ const PrivilegeSchema: Schema = new Schema({
   },
   type: {
     type: String,
-    enum: ['Global', 'Project'],
+    enum: ['Global', 'Project', 'AdminSys'],
     required: true,
   },
-  userId: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    },
-  ],
+  isVisible: {
+    type: Boolean,
+    required: true,
+  },
 });
 
 export const PrivilegeModel = model<IPrivilege & Document>('Privilege', PrivilegeSchema);
